@@ -1,12 +1,13 @@
+
 # Hello Robot Workshop
 
 Welcome to the Hello Robot Workshop! In this workshop, we will cover various robotics topics such as control systems, kinematics, and robot simulations using MATLAB. Please follow the instructions below to get started with MATLAB installations, inverted pendulum balancing, kinematics, and robot simulations.
 
+Slides for the session : [Download PDF](slides.pdf)
+
+
+
 ---
-
-## MATLAB Installation Instructions
-
-To begin working with the robot simulations and other MATLAB-based tools, you must first install MATLAB on your system.
 
 ### Steps for Installation:
 1. **Download MATLAB**:
@@ -14,116 +15,126 @@ To begin working with the robot simulations and other MATLAB-based tools, you mu
    - Choose the appropriate version for your operating system (Windows, macOS, or Linux).
    
 2. **Create a MathWorks Account** (if you don't have one):
-   - Sign up at [MathWorks Account](https://www.mathworks.com/help/matlab/matlab_external/create-a-mathworks-account.html).
+   - Sign up at [MathWorks Account](https://www.mathworks.com/help/matlab/matlab_external/create-a-mathworks-account.html) using your **LDAP ID**
    
 3. **Run the MATLAB Installer**:
    - After downloading, run the installer and follow the on-screen instructions.
-   
-4. **Activate MATLAB**:
+
+4. **Install Additional Toolboxes** :
+   You will be asked to select products to be installed, So over there you need to tick on the following Add Ons: 
+
+    - Matlab
+    - Simulink 
+    - Simscape
+    - Simscape Multibody
+    - Simulink 3D animation 
+ 
+
+6. **Activate MATLAB**:
    - Once installation is complete, open MATLAB and activate it using your MathWorks account.
 
-5. **Install Additional Toolboxes** (if needed):
-   - If your project requires additional MATLAB toolboxes (e.g., Robotics Toolbox, Simulink, etc.), you can install them via the MATLAB Add-On Explorer.
 
 ---
 
-## Inverted Pendulum Balancing in MATLAB
+# Activity
 
-Balancing an inverted pendulum is a classic control problem where we try to keep a pendulum upright by applying control forces at its base. In MATLAB, we simulate this using state-space models and controllers such as PID.
+## Pick and Place Mechanism 
 
-### Steps for Inverted Pendulum Balancing:
-1. **Model the Inverted Pendulum**:
-   - Represent the inverted pendulum as a dynamic system using its equations of motion:
-     - \(\theta''(t) = \frac{g \sin(\theta) + \cos(\theta) (L \theta'^{2} \sin(\theta) - u)}{L (m + M - m \cos^2(\theta))}\)
-     - Where:
-       - \(\theta\) is the angle of the pendulum,
-       - \(g\) is gravity,
-       - \(L\) is the length of the pendulum,
-       - \(m\) and \(M\) are the masses, and
-       - \(u\) is the control input.
-     
-2. **Implement the State-Space Model**:
-   - Define the state-space representation in MATLAB:
-     ```matlab
-     A = [0 1 0 0;
-          0 0 -m*g/M 0;
-          0 0 0 1;
-          0 0 (m+M)*g/(M*L) 0];
-     B = [0; 1/M; 0; -1/(M*L)];
-     C = [1 0 0 0];
-     D = 0;
-     ```
+### Instructions to open the Simulink Model in MATLAB
 
-3. **Design a Controller**:
-   - Use PID or LQR (Linear Quadratic Regulator) to stabilize the system. For example:
-     ```matlab
-     K = lqr(A, B, Q, R);
-     ```
+1. Download the Zip file of repository using the green colored (CODE) button. 
+2. Extract the files into a folder. 
+3. In Current Folders Section in Matlab, Right Click on your folder and select 'Add to Path/Selected Folders and Subfolders'
+4. Open Folder/Examples/3D/Gripper2_Belts/Gripper2_Belts.slx file
 
-4. **Simulate the Pendulum**:
-   - Run a simulation with initial conditions (pendulum at a certain angle) and control laws to balance it:
-     ```matlab
-     [t, y] = ode45(@(t, y) inverted_pendulum_dynamics(t, y, A, B, K), time_span, initial_conditions);
-     plot(t, y);
-     ```
+#### Gripper2_Belts.slx file 
+In this activity we are going to make a pick and place mechanism based robotic arm model. After you have went through all the instructions in the session and followed this repo carefully, you will end with this:
 
-   - **Image Example**:
-     ![Inverted Pendulum Simulation](path_to_image)
+![Alt text](anim.gif)
 
 ---
 
-## Inverse and Forward Kinematics
+We have provided you with some blocks required for simulating the model. There are no connections made into it and when you run this file, Your matlab will be flooded with errors. So lets get into making this work! 
+![In Conn Image](images/IN_Conn.png)
 
-Kinematics deals with the motion of bodies in space. In robotics, we use **forward kinematics** and **inverse kinematics** to determine the position and orientation of robot links.
+### Gripper 
+The gripper consists of two plate-like structures that move closer to grip an object and farther apart to release it. Linear motion is achieved through prismatic joints, which are supported by a rod and post mechanism. The rod transfers motion, while the post stabilizes the prismatic joints. The base anchors the entire assembly, ensuring stable operation. This design is ideal for tasks like pick-and-place, where precise control is required to securely handle and transfer objects.
 
-### Forward Kinematics:
-- **Definition**: Forward kinematics involves calculating the position and orientation of the robot's end-effector given the joint angles and lengths of the links.
-- **Example**: For a 2-link robot arm, the forward kinematic equations are:
-  \[
-  x = L_1 \cos(\theta_1) + L_2 \cos(\theta_1 + \theta_2)
-  \]
-  \[
-  y = L_1 \sin(\theta_1) + L_2 \sin(\theta_1 + \theta_2)
-  \]
 
-### Inverse Kinematics:
-- **Definition**: Inverse kinematics involves determining the required joint angles to achieve a specific position of the end-effector.
-- **Example**: Solving for \(\theta_1\) and \(\theta_2\) given \(x\) and \(y\).
+You are provided with the following:
+![Example Image](images/Gripp_IN.png)
 
----
+Hope you got a good understanding about how this gripper work, Check for the connections in the gripper block. This should be the final gripper model:
 
-## Explanation about Key Blocks in Simulations
+![Example Image](images/Gripp_C.png)
 
-### 1. **World Frame Block**:
-   - This block represents the global coordinate system, defining the origin and axes that all other components reference.
+### Conveyer Belt 
+The Gripper Model Block in MATLAB simulates a gripper with rollers linked to revolute joints. These joints allow the rollers to rotate, and the transform rollers manage the positional adjustments. The model takes speed as input, which controls the rotation of the rollers, simulating the gripper’s movement for tasks like object manipulation.
 
-### 2. **Rigid Transform Block**:
-   - The rigid transform block applies transformations (translation and rotation) to a frame of reference. It is used to move objects relative to one another in space.
+The Belt Out Box given to you has some incomplete connections. 
+![Example Image](images/Belt_Out_IN.png)
 
-### 3. **6-DOF Block**:
-   - The 6-DOF block is used to describe a rigid body’s position and orientation in 3D space. It allows you to simulate the motion of robots or parts in 6 degrees of freedom (3 for position, 3 for orientation).
+Complete the following Connections:
+![Example Image](images/Belt_Out_C.png)
 
-### 4. **Box to Belt Out and Box to Belt In**:
-   - These blocks simulate the movement of boxes onto and off a conveyor belt, typically used in pick-and-place tasks.
+The Belt In Block works on similar principle, You don't need to do any changes to that.
 
-### 5. **Gripper Working**:
-   - The gripper consists of two plates that move toward an object to pick it up and move it away to release the object. It is controlled by a servo that actuates the plates' opening and closing.
+So, this was about some major modelling related part of the belt and gripper.
+Now we will move on to adding some Blocks on own. For this you need to use the Library Browser at the top tab area in Matlab. You can search for any component and add it to your simulink model and drag or double click. 
 
----
+#### World Frame: 
+- Search for "world frame" in the library browser and add it you slx file.
 
-## Pick and Place Simulation
+### Transform Block:
+A Transform block in Simulink adjusts the position and orientation of an object or coordinate frame.
 
-This section simulates the process of picking up an object and placing it at a different location using the robot's gripper.
+- Entry belt: Requires a -90° rotation to align with the 90° turn of the system.
+- Exit belt: Requires a 180° flip because the material exiting the incoming belt is reversed and turned to flow correctly on the outgoing belt.
 
-- The simulation involves:
-  - Gripping an object using the two plates of the gripper.
-  - Moving the object from one location to another using robotic arms or a conveyor belt.
+- Offsets in translation refer to the positional shift or displacement of an object or point relative to a reference coordinate system or origin. In simple terms, they define how far an object is moved along the X, Y, and Z axes from a starting position.
 
-### Simulation Steps:
-1. Initialize the environment and robot with a target object.
-2. Activate the gripper to close around the object.
-3. Move the robot arm to the desired location.
-4. Release the object at the new location.
+#### Transform Belt Out 
 
-**Video Example**:
-![Pick and Place Simulation](path_to_video)
+- Search for "rigid transform", add it your model and name it as "Transform Belt Out".
+- Double Click on the Block and do the following changes: 
+![Example Image](images/Transform_belt_out.png)
+  
+#### Transform Belt In
+
+- Search for "rigid transform", add it your model and name it as "Transform Belt In".
+- Double Click on the Block and do the following changes: 
+![Example Image](images/Transform_belt_in.png)
+
+### Goto Blocks
+
+#### Goto
+The Goto block in MATLAB is used in Simulink to transfer signals between different parts of a model. It allows you to send a signal from one block to another, even if the blocks are not directly connected. The Goto block helps improve model readability by avoiding long, tangled lines of connections.
+
+- Search for Goto in the library browser, place it in the simulink model as name "Goto".
+- Double Click on the Block and do the following changes:
+![Example Image](images/Goto.png)
+
+#### Goto1
+- Search for Goto in the library browser, place it in the simulink model as name "Goto1".
+- Double Click on the Block and do the following changes:
+![Example Image](images/Goto1.png)
+
+
+Now, we will make the connections within all these Blocks. Refer the following:
+![Example Image](images/Complete_Conn.png)
+
+Click on the **Run** Button at the top, the Simulation will start. 
+
+The slx file with all connections made is given : [Download Simulink File](Gripper_2Belts_F.slx)
+
+
+![Alt text](anim.gif)
+
+We Hope you guys enjoyed :) 
+
+
+
+
+
+
+
